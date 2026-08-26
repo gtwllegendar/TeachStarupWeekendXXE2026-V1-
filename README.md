@@ -16,25 +16,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Locale;
 
-/**
- * Aplicação desktop (Swing) para classificação de maciez de cortes de carne,
- * com recomendação de destino comercial. Interface em formato de "tela de
- * display" de balança digital, cores claras.
- *
- * Compilar:  javac com/example/maciez/MeatTendernessDisplayApp.java
- * Executar:  java com.example.maciez.MeatTendernessDisplayApp
- */
+
 class MeatTendernessDisplayApp {
 
-    // =====================================================================
-    // DOMÍNIO — regras de negócio, sem qualquer dependência de Swing/AWT.
-    // Idêntico em espírito à versão de console: pode ser testado isolado.
-    // =====================================================================
 
     public enum TendernessCategory {
-        MACIA("Macia", "Mercado de Exportação Premium / Steakhouses", new Color(0x2F, 0x7A, 0x4E)),
-        MEDIA("Média", "Varejo Tradicional / Supermercados", new Color(0xB3, 0x79, 0x1E)),
-        DURA("Dura", "Indústria de Processados (Hambúrgueres/Embutidos) ou Maturação", new Color(0xA1, 0x3A, 0x34));
+        MACIA("Macia", "Mercado de Exportação Premium / Steakhouses", new Color(0x2F, 0x7A, 0x4E)), MEDIA("Média", "Varejo Tradicional / Supermercados", new Color(0xB3, 0x79, 0x1E)), DURA("Dura", "Indústria de Processados (Hambúrgueres/Embutidos) ou Maturação", new Color(0xA1, 0x3A, 0x34));
 
         private final String label;
         private final String destination;
@@ -68,8 +55,8 @@ class MeatTendernessDisplayApp {
             this.category = category;
         }
 
-        public Object getMeasurement() {
-            return (Object) measurement;
+        public double getMeasurement() {
+            return measurement;
         }
 
         public TendernessCategory getCategory() {
@@ -122,13 +109,9 @@ class MeatTendernessDisplayApp {
         }
     }
 
-    /**
-     * Resultado da validação de um texto digitado pelo usuário.
-     * Espelha o fluxo trim -> parseDouble(try/catch) -> checagem de negativo
-     * que era feito no loop do console, agora reutilizável pela UI gráfica.
-     */
+
     private static final class ParseOutcome {
-        enum Reason { OK, EMPTY, NEGATIVE, INVALID }
+        enum Reason {OK, EMPTY, NEGATIVE, INVALID}
 
         final Reason reason;
         final double value;
@@ -153,14 +136,14 @@ class MeatTendernessDisplayApp {
             return ParseOutcome.fail(ParseOutcome.Reason.EMPTY);
         }
 
-        // Aceita vírgula como separador decimal (padrão brasileiro).
+
         String normalized = trimmed.replace(',', '.');
 
         double value;
         try {
             value = Double.parseDouble(normalized);
         } catch (NumberFormatException e) {
-            // Cobre letras, símbolos e qualquer texto não numérico.
+
             return ParseOutcome.fail(ParseOutcome.Reason.INVALID);
         }
 
@@ -173,9 +156,6 @@ class MeatTendernessDisplayApp {
         return ParseOutcome.ok(value);
     }
 
-    // =====================================================================
-    // INTERFACE GRÁFICA — tudo que sabe desenhar janelas fica aqui embaixo.
-    // =====================================================================
 
     private static final Color CASING = new Color(0xE9, 0xEB, 0xEE);
     private static final Color BEZEL = Color.WHITE;
@@ -201,10 +181,7 @@ class MeatTendernessDisplayApp {
         SwingUtilities.invokeLater(() -> new MainFrame().setVisible(true));
     }
 
-    /**
-     * Janela principal. Responsável apenas por montar componentes e ligar
-     * eventos ao TendernessClassifier — nenhuma regra de negócio mora aqui.
-     */
+
     private static final class MainFrame extends JFrame {
 
         private final TendernessClassifier classifier = new TendernessClassifier(2.5, 5.0);
@@ -235,7 +212,6 @@ class MeatTendernessDisplayApp {
             setLocationRelativeTo(null);
         }
 
-        // ---------------- Header ----------------
 
         private JComponent buildHeader() {
             JPanel panel = new JPanel();
@@ -251,22 +227,17 @@ class MeatTendernessDisplayApp {
             title.setForeground(TEXT);
             title.setBorder(new EmptyBorder(4, 0, 4, 0));
 
-            JLabel subtitle = new JLabel(
-                    "<html><body style='width:520px'>Pese o corte em quilos. O sistema recusa letras "
-                            + "e valores negativos e mostra o destino comercial na hora.</body></html>");
+            JLabel subtitle = new JLabel("<html><body style='width:520px'>Pese o corte em quilos. O sistema recusa letras " + "e valores negativos e mostra o destino comercial na hora.</body></html>");
             subtitle.setFont(FONT_BODY);
             subtitle.setForeground(TEXT_DIM);
 
             panel.add(eyebrow);
             panel.add(title);
             panel.add(subtitle);
-            panel.setBorder(new CompoundBorder(
-                    new MatteBorder(0, 0, 1, 0, BEZEL_LINE),
-                    new EmptyBorder(0, 0, 14, 0)));
+            panel.setBorder(new CompoundBorder(new MatteBorder(0, 0, 1, 0, BEZEL_LINE), new EmptyBorder(0, 0, 14, 0)));
             return panel;
         }
 
-        // ---------------- Centro: balança + ticket ----------------
 
         private JComponent buildCenter() {
             JPanel center = new JPanel(new GridLayout(1, 2, 18, 0));
@@ -308,8 +279,7 @@ class MeatTendernessDisplayApp {
         private JComponent buildLcdDisplay() {
             JPanel lcd = new JPanel(new BorderLayout(8, 2));
             lcd.setBackground(LCD_BG);
-            lcd.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0, 40), 1, true),
-                    new EmptyBorder(12, 14, 10, 14)));
+            lcd.setBorder(new CompoundBorder(new LineBorder(new Color(0, 0, 0, 40), 1, true), new EmptyBorder(12, 14, 10, 14)));
             lcd.setAlignmentX(Component.LEFT_ALIGNMENT);
             lcd.setMaximumSize(new Dimension(Integer.MAX_VALUE, 92));
 
@@ -400,7 +370,7 @@ class MeatTendernessDisplayApp {
             legend.setBorder(new CompoundBorder(new MatteBorder(1, 0, 0, 0, BEZEL_LINE), new EmptyBorder(10, 0, 0, 0)));
 
             legend.add(legendRow(TendernessCategory.MACIA.getInkColor(), "Até 2,5 kg — Macia"));
-            legend.add(legendRow(TendernessCategory.MEDIA.getInkColor(), "De 2,5 a 5,0 kg — Média"));
+            legend.add(legendRow(TendernessCategory.MEDIA.getInkColor(), "Acima de 2,5 até 5,0 kg — Média"));
             legend.add(legendRow(TendernessCategory.DURA.getInkColor(), "Acima de 5,0 kg — Dura"));
             return legend;
         }
@@ -431,7 +401,6 @@ class MeatTendernessDisplayApp {
             return row;
         }
 
-        // ---------------- Ticket ----------------
 
         private JComponent buildTicketPanel() {
             JPanel panel = panelCard();
@@ -473,10 +442,7 @@ class MeatTendernessDisplayApp {
             return panel;
         }
 
-        /**
-         * Componente que desenha o "carimbo": dois círculos concêntricos
-         * levemente rotacionados com a categoria no centro, feito com Java2D.
-         */
+
         private static final class StampPanel extends JComponent {
             private TendernessResult result;
 
@@ -536,7 +502,6 @@ class MeatTendernessDisplayApp {
             }
         }
 
-        // ---------------- Histórico ----------------
 
         private JComponent buildHistory() {
             JPanel panel = panelCard();
@@ -630,7 +595,6 @@ class MeatTendernessDisplayApp {
             return row;
         }
 
-        // ---------------- Ação principal ----------------
 
         private void weigh() {
             ParseOutcome outcome = parseWeight(weightField.getText());
@@ -654,13 +618,10 @@ class MeatTendernessDisplayApp {
             TendernessResult result = classifier.classify(outcome.value);
             ticketCounter++;
 
-            ticketHeadLabel.setText(String.format(Locale.US, "Ticket #%04d", ticketCounter)
-                    + "        " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
+            ticketHeadLabel.setText(String.format(Locale.US, "Ticket #%04d", ticketCounter) + "        " + LocalTime.now().format(DateTimeFormatter.ofPattern("HH:mm")));
             stampPanel.setResult(result);
-            sentenceArea.setText("A carne é " + result.getCategory().getLabel()
-                    + ". Mande para " + result.getCategory().getDestination() + ".");
-            metaLabel.setText(String.format(Locale.US, "%.2f kg pesados   |   Faixa: %s",
-                    result.getMeasurement(), result.getCategory().getLabel()));
+            sentenceArea.setText("A carne é " + result.getCategory().getLabel() + ". Mande para " + result.getCategory().getDestination() + ".");
+            metaLabel.setText(String.format(Locale.US, "%.2f kg pesados   |   Faixa: %s", result.getMeasurement(), result.getCategory().getLabel()));
 
             if (historyListPanel.getComponentCount() > 0 && historyListPanel.getComponent(0) == historyEmptyLabel) {
                 historyListPanel.remove(historyEmptyLabel);
@@ -681,7 +642,6 @@ class MeatTendernessDisplayApp {
             errorLabel.setText(" ");
         }
 
-        // ---------------- Helpers de UI ----------------
 
         private JPanel panelCard() {
             JPanel panel = new JPanel();
